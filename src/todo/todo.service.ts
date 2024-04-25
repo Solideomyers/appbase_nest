@@ -11,8 +11,14 @@ export class TodoService {
     { id: 3, description: 'Piedra del Espacio', done: false },
   ];
 
-  create(createTodoDto: CreateTodoDto) {
-    return 'This action adds a new todo';
+  create({ description }: CreateTodoDto): Todo {
+    const todo = new Todo();
+    todo.id = Math.max(...this.todos.map((todo) => todo.id), 0) + 1;
+    todo.description = description;
+
+    this.todos.push(todo);
+
+    return todo;
   }
 
   findAll(): Todo[] {
@@ -26,8 +32,20 @@ export class TodoService {
     return todo;
   }
 
-  update(id: number, updateTodoDto: UpdateTodoDto) {
-    return `This action updates a #${id} todo`;
+  update(id: number, updateTodoDto: UpdateTodoDto): Todo {
+    const todo = this.findOne(id);
+
+    const { description, done } = updateTodoDto;
+
+    if (done !== undefined) todo.done = done;
+    if (description) todo.description = description;
+
+    this.todos = this.todos.map((dbTodo) => {
+      if (dbTodo.id === id) return todo;
+      return dbTodo;
+    });
+
+    return todo;
   }
 
   remove(id: number) {
